@@ -10,6 +10,8 @@ import XCTest
 @testable import Jikan
 
 class JikanTests: XCTestCase {
+    
+    let topViewModel = TopViewModel()
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -31,4 +33,55 @@ class JikanTests: XCTestCase {
         }
     }
 
+}
+
+extension JikanTests {
+    func testListcount() {
+        let exception = XCTestExpectation()
+        
+        topViewModel.service.getFeed(fromRoute: Routes.upcoming, parameters: nil) { [weak self] (result) in
+            
+            switch result {
+                case .success(let feedResult):
+                    self?.topViewModel.respone.value = feedResult
+                    exception.fulfill()
+                case .failure( _):
+                    break
+                    
+            }
+        }
+        
+        let wait = XCTWaiter()
+        _ = wait.wait(for: [exception], timeout: 10)
+            
+        XCTAssert(topViewModel.respone.value?.top.count == 50, "API Parse Error")
+    }
+    
+    func testFavoriterCount(){
+        
+        let exception = XCTestExpectation()
+        
+        topViewModel.service.getFeed(fromRoute: Routes.upcoming, parameters: nil) { [weak self] (result) in
+            
+            switch result {
+                case .success(let feedResult):
+                    self?.topViewModel.respone.value = feedResult
+                    exception.fulfill()
+                case .failure( _):
+                    break
+                    
+            }
+        }
+        
+        let wait = XCTWaiter()
+        _ = wait.wait(for: [exception], timeout: 10)
+        
+        guard let top = topViewModel.respone.value?.top[0], let top2 = topViewModel.respone.value?.top[1], let top3 = topViewModel.respone.value?.top[2] else { return  }
+        
+        topViewModel.favorites.value.insert(top)
+        topViewModel.favorites.value.insert(top2)
+        topViewModel.favorites.value.insert(top3)
+        
+        XCTAssert(topViewModel.favorites.value.count == 3, "Favorite count error")
+    }
 }
