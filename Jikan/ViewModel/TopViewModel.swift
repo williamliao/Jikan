@@ -252,9 +252,6 @@ extension TopViewModel: UITableViewDataSource {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: TopTableViewCell.reuseIdentifier, for: indexPath) as? TopTableViewCell
         
-        //cell?.viewModel = self
-        //cell?.isLoading(isLoading: self.isLoading.value)
-        
         cell?.titleLabel.text = items.top[indexPath.row].title
         let rank = items.top[indexPath.row].rank
         cell?.rankLabel.text = "\(rank)"

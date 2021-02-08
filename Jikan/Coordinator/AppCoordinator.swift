@@ -11,19 +11,11 @@ import UIKit
 class AppCoordinator: Coordinator {
     // MARK: - Properties
     let window: UIWindow?
-
     var tabController: UITabBarController
     lazy var rootViewController: UITabBarController = {
         return UITabBarController()
     }()
- 
-//    let apiClient: ApiClient = {
-//        let configuration = URLSessionConfiguration.default
-//        configuration.httpAdditionalHeaders = ["Content-Type": "application/json; charset=utf-8"]
-//        let apiClient = ApiClient(configuration: configuration)
-//        return apiClient
-//    }()
-//
+
     // MARK: - Coordinator
     init(tabController: UITabBarController, window: UIWindow?) {
         self.tabController = tabController

@@ -21,17 +21,7 @@ class TopTableViewCell: UITableViewCell {
     var startLabel: UILabel!
     var endLabel: UILabel!
     var typeLabel: UILabel!
-    
-//    var viewModel: TopViewModel? {
-//        didSet {
-//            if let vm = viewModel {
-//                vm.isLoading.bind { [weak self]  (_) in
-//                    self?.isLoading(isLoading: vm.isLoading.value)
-//                }
-//            }
-//        }
-//    }
-    
+ 
     private var cancellable: AnyCancellable?
     private var animator: UIViewPropertyAnimator?
     
@@ -66,9 +56,7 @@ class TopTableViewCell: UITableViewCell {
         typeLabel.font = UIFont.systemFont(ofSize: 14)
         
         topImageView = UIImageView()
-        
-        //act.startAnimating()
-
+      
         contentView.addSubview(titleLabel)
         contentView.addSubview(rankLabel)
         contentView.addSubview(topImageView)
@@ -95,13 +83,11 @@ class TopTableViewCell: UITableViewCell {
             topImageView.heightAnchor.constraint(equalToConstant: 44),
             
             titleLabel.leadingAnchor.constraint(equalTo: topImageView.trailingAnchor, constant: 10),
-            //titleLabel.trailingAnchor.constraint(equalTo: rankLabel.leadingAnchor, constant: -20),
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             titleLabel.heightAnchor.constraint(equalToConstant: 16),
             titleLabel.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.6),
             
             startLabel.leadingAnchor.constraint(equalTo: topImageView.trailingAnchor, constant: 10),
-            //startLabel.trailingAnchor.constraint(equalTo: rankLabel.leadingAnchor),
             startLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             startLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
@@ -111,7 +97,6 @@ class TopTableViewCell: UITableViewCell {
             
             rankLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             rankLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            //rankLabel.widthAnchor.constraint(equalToConstant: 44),
             rankLabel.heightAnchor.constraint(equalToConstant: 16),
             
             typeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
@@ -124,12 +109,18 @@ class TopTableViewCell: UITableViewCell {
     }
     
     func configureImage(with url: URL) {
-        cancellable = loadImage(for: url).sink { [unowned self] image in self.showImage(image: image) }
+        isLoading(isLoading: true)
+        cancellable = loadImage(for: url).sink { [unowned self] image in
+            self.showImage(image: image)
+            isLoading(isLoading: false)
+        }
+        
     }
     
     private func showImage(image: UIImage?) {
         topImageView.alpha = 0.0
         topImageView.image = image
+        
         animator = UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.3, delay: 0, options: .curveLinear, animations: {
             self.topImageView.alpha = 1.0
         })
@@ -138,7 +129,6 @@ class TopTableViewCell: UITableViewCell {
     private func loadImage(for url: URL) -> AnyPublisher<UIImage?, Never> {
         return Just(url)
         .flatMap({ poster -> AnyPublisher<UIImage?, Never> in
-            //let url = URL(string: urlString)!
             return ImageLoader.shared.loadImage(from: url)
         })
         .eraseToAnyPublisher()
