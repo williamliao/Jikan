@@ -70,7 +70,7 @@ extension TopContentViewModel {
     
     func loadFavorite() {
         let userDefaults = UserDefaults.standard
-        if UserDefaults.standard.object(forKey: "favorite") != nil {
+        if UserDefaults.standard.object(forKey: "favoritesAnime") != nil {
             
             if isAnime  {
                 do {
@@ -84,7 +84,7 @@ extension TopContentViewModel {
                     backButton.isSelected = true
                     navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
                 }
-            } else {
+            } else if UserDefaults.standard.object(forKey: "favoritesManga") != nil {
                 do {
                     self.topViewModel.favoritesManga.value = try userDefaults.getObject(forKey: "favoritesManga", castTo: Set<Top>.self)
                 } catch  {
@@ -110,24 +110,30 @@ extension TopContentViewModel {
         if isAnime {
             if isFavorite {
                 self.topViewModel.favoritesAnime.value.insert(top)
-                
-                do {
-                    try UserDefaults.standard.setObject(self.topViewModel.favoritesAnime.value, forKey: "favoritesAnime")
-                    UserDefaults.standard.synchronize()
-                } catch  {
-                    print(error)
-                }
-                
+            } else {
+                self.topViewModel.favoritesManga.value.remove(top)
+            }
+            
+            saveToFavorite()
+            
+        } else {
+            
+            if isFavorite {
+                self.topViewModel.favoritesManga.value.insert(top)
             } else {
                 self.topViewModel.favoritesManga.value.remove(top)
                 
-                do {
-                    try UserDefaults.standard.setObject(self.topViewModel.favoritesManga.value, forKey: "favoritesManga")
-                    UserDefaults.standard.synchronize()
-                } catch  {
-                    print(error)
-                }
             }
+            saveToFavorite()
+        }
+    }
+    
+    func saveToFavorite() {
+        do {
+            try UserDefaults.standard.setObject(isAnime ? self.topViewModel.favoritesAnime.value : self.topViewModel.favoritesManga.value, forKey: isAnime ? "favoritesAnime": "favoritesManga")
+            UserDefaults.standard.synchronize()
+        } catch  {
+            print(error)
         }
     }
 }

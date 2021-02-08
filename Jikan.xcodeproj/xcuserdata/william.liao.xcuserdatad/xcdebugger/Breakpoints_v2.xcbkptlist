@@ -71,16 +71,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7CB6C298-782A-45E4-885D-DA317BCB996B"
-            shouldBeEnabled = "Yes"
+            uuid = "229A3E6B-B3C2-462D-A770-97853F4D6137"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Jikan/ViewModel/TopViewModel.swift"
+            filePath = "Jikan/Coordinator/TopListCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "353"
-            endingLineNumber = "353"
-            landmarkName = "tableView(_:leadingSwipeActionsConfigurationForRowAt:)"
+            startingLineNumber = "85"
+            endingLineNumber = "85"
+            landmarkName = "goToDetailView(top:item:section:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

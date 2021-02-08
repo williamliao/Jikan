@@ -307,7 +307,7 @@ extension TopViewModel: UITableViewDelegate {
         
         let topItem = topItems.top[indexPath.row]
         
-        coordinator?.goToDetailView(top: topItem, item: topItems, section: indexPath.section)
+        coordinator?.goToDetailView(top: topItem, item: topItems, section: self.segmentedControl.selectedSegmentIndex == 0 ? 0 : 1)
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
