@@ -18,8 +18,10 @@ public struct Routes {
 }
 
 class ServiceHelper: NSObject, APIClient {
-    var cache: URLCache = URLCache()
+    var cacheAnime: URLCache = URLCache()
     
+    var cacheManga: URLCache = URLCache()
+
     let baseURL: String
     
     init(withBaseURL baseURL: String) {
