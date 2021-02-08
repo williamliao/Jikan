@@ -19,7 +19,8 @@ struct Top: Codable {
 	let start_date: String?
 	let end_date: String?
 	let members: Int
-	let score: Int
+	let score: Double
+    let volumes: Int?
 }
 
 extension Top: Hashable {

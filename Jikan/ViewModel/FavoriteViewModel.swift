@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum FavoriteSection: Int, CaseIterable {
+  case anime
+  case manga
+}
+
 class FavoriteViewModel: NSObject {
     
     var coordinator :TopListCoordinator?
@@ -47,18 +52,23 @@ extension FavoriteViewModel: UITableViewDataSource {
         tableView.dataSource = self
         tableView.delegate = self
         
-        viewModel.favorites.bind { [weak self] (_) in
+        viewModel.favoritesAnime.bind { [weak self] (_) in
+                    
+            self?.tableView.reloadData()
+        }
+        
+        viewModel.favoritesManga.bind { [weak self] (_) in
                     
             self?.tableView.reloadData()
         }
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return FavoriteSection.allCases.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.favorites.value.count
+        return section == 0 ? viewModel.favoritesAnime.value.count : viewModel.favoritesManga.value.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -71,10 +81,22 @@ extension FavoriteViewModel: UITableViewDataSource {
         
       //  let topItem = viewModel.favorites.value.
         
-        let top = Array(viewModel.favorites.value)[indexPath.row]
+        switch indexPath.section {
+            case 0:
+                let top = Array(viewModel.favoritesAnime.value)[indexPath.row]
+                
+                guard let cell = self.configureCell(tableView: tableView, top: top, indexPath: indexPath) else { return UITableViewCell() }
+                return cell
+                
+            case 1:
+                let top = Array(viewModel.favoritesManga.value)[indexPath.row]
+                
+                guard let cell = self.configureCell(tableView: tableView, top: top, indexPath: indexPath) else { return UITableViewCell() }
+                return cell
+        default:
+            return TopTableViewCell()
+        }
         
-        guard let cell = self.configureCell(tableView: tableView, top: top, indexPath: indexPath) else { return UITableViewCell() }
-        return cell
     }
    
     private func configureCell(tableView: UITableView, top: Top, indexPath: IndexPath) -> UITableViewCell? {
@@ -105,6 +127,27 @@ extension FavoriteViewModel: UITableViewDataSource {
         return cell
         
     }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let title = titleForHeaderInSection(titleForHeaderInSection: section)
+        return title
+    }
+    
+    
+    private func titleForHeaderInSection(titleForHeaderInSection section: Int) -> String? {
+        guard let sectionTitle = FavoriteSection(rawValue: section) else {
+          return nil
+        }
+        
+        switch sectionTitle {
+         // 2
+         case .anime:
+            return "Anime"
+         // 3
+         case .manga:
+            return "Manga"
+         }
+    }
 }
 
 extension FavoriteViewModel: UITableViewDelegate {
@@ -121,15 +164,36 @@ extension FavoriteViewModel: UITableViewDelegate {
     private func makeUnFavoriteContextualAction(forRowAt indexPath: IndexPath) -> UIContextualAction {
         return UIContextualAction(style: .normal, title: "unFavorite") { (action, swipeButtonView, completion) in
             
-            let top = Array(self.viewModel.favorites.value)[indexPath.row]
             
-            self.viewModel.favorites.value.remove(top)
+            if indexPath.section == FavoriteSection.anime.rawValue {
+                let top = Array(self.viewModel.favoritesAnime.value)[indexPath.row]
+                
+                self.viewModel.favoritesAnime.value.remove(top)
 
-            action.image = UIImage(systemName: "heart")
-            action.image?.withTintColor(.systemGreen)
-            action.backgroundColor = .systemOrange
-            completion(true)
-            
+                action.image = UIImage(systemName: "heart")
+                action.image?.withTintColor(.systemGreen)
+                action.backgroundColor = .systemOrange
+                
+                do {
+                    try UserDefaults.standard.setObject(self.viewModel.favoritesAnime.value, forKey: "favoritesAnime")
+                    UserDefaults.standard.synchronize()
+                } catch  {
+                    print(error)
+                }
+                
+                completion(true)
+            } else {
+                let top = Array(self.viewModel.favoritesManga.value)[indexPath.row]
+                
+                self.viewModel.favoritesManga.value.remove(top)
+                
+                do {
+                    try UserDefaults.standard.setObject(self.viewModel.favoritesManga.value, forKey: "favoritesManga")
+                    UserDefaults.standard.synchronize()
+                } catch  {
+                    print(error)
+                }
+            }
         }
     }
 }

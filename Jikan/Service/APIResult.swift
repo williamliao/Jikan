@@ -53,18 +53,32 @@ extension APIClient {
                     UserDefaults.standard.set(etag, forKey: "ETag")
                     UserDefaults.standard.synchronize()
                     
-                    if self.cache.cachedResponse(for: request) == nil,
-                        let data = try? Data(contentsOf: request.url!) {
-                        self.cache.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
-                        
-                        cacheData = data
-                        
-                    } else {
-                        let cacheRespone: CachedURLResponse = self.cache.cachedResponse(for: request)!
-                        
-                        cacheData = cacheRespone.data
-                    }
                     
+                    if request.url!.absoluteString.contains("anime") {
+                        if self.cache.cachedResponse(for: request) == nil,
+                            let data = try? Data(contentsOf: request.url!) {
+                            self.cache.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
+                            
+                            cacheData = data
+                            
+                        } else {
+                            let cacheRespone: CachedURLResponse = self.cache.cachedResponse(for: request)!
+                            
+                            cacheData = cacheRespone.data
+                        }
+                    } else {
+                        if self.cache.cachedResponse(for: request) == nil,
+                            let data = try? Data(contentsOf: request.url!) {
+                            self.cache.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
+                            
+                            cacheData = data
+                            
+                        } else {
+                            let cacheRespone: CachedURLResponse = self.cache.cachedResponse(for: request)!
+                            
+                            cacheData = cacheRespone.data
+                        }
+                    }
                     
                 } else if httpResponse.statusCode == 304 {
                     

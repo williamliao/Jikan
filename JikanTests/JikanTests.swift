@@ -137,8 +137,11 @@ extension JikanTests {
     }
     
     func testDecoding() throws {
-        
-        let url = Bundle.main.url(forResource: "top", withExtension: "json")!
+      
+        guard let url = Bundle.main.url(forResource: "top", withExtension: "json") else {
+            XCTFail("Missing file: User.json")
+            return
+        }
         
         /// When the Data initializer is throwing an error, the test will fail.
         guard let jsonData = try? Data(contentsOf: url) else { return }

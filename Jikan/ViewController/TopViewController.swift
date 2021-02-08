@@ -40,7 +40,8 @@ class TopViewController: UIViewController, Storyboarded {
             print("error = \(error.localizedDescription)")
         }
         
-        viewModel.fetchTopList()
+        viewModel.createSegmentView(view: view)
+        viewModel.fetchTopListAnime()
         viewModel.loadFavorieData()
         
         topTableView.register(TopTableViewCell.self,

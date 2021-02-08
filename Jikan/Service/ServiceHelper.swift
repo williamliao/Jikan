@@ -14,6 +14,7 @@ public struct Route {
 
 public struct Routes {
     static let upcoming = Route(endpoint: "/top/anime/1/upcoming")
+    static let manga = Route(endpoint: "/top/manga/1/manga")
 }
 
 class ServiceHelper: NSObject, APIClient {

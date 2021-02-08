@@ -22,7 +22,7 @@ class FavoriteViewController: UIViewController, Storyboarded {
     }
     
     func render() {
-   
+        viewModel.loadFavorieData()
          favoriteViewModel.configureTableView(Add: view)
          favoriteViewModel.makeDateSourceForTableView()
        

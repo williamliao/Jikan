@@ -21,19 +21,71 @@ class TopViewModel: NSObject {
     var respone: Observable<Response?> = Observable(nil)
     var errorMessage: Observable<String?> = Observable(nil)
     var error: Observable<Error?> = Observable(nil)
-    var favorites:  Observable<Set<Top>> = Observable(Set<Top>())
+    var favoritesAnime:  Observable<Set<Top>> = Observable(Set<Top>())
+    var favoritesManga:  Observable<Set<Top>> = Observable(Set<Top>())
     
     var isLoading: Observable<Bool> = Observable(false)
     
     var coordinator :TopListCoordinator?
     
     var currentPage = 1
+    
+    let items = ["Anime", "Manga"]
+    lazy var segmentedControl = UISegmentedControl(items: items)
+    
+    func createSegmentView(view : UIView) {
+        segmentedControl.frame = CGRect(x: 35, y: 200, width: 250, height: 50)
+        segmentedControl.addTarget(self, action: #selector(segmentAction(_:)), for: .valueChanged)
+        segmentedControl.selectedSegmentIndex = 0
+        view.addSubview(segmentedControl)
+        
+        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            segmentedControl.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            segmentedControl.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            segmentedControl.heightAnchor.constraint(equalToConstant: 44),
+        ])
+    }
+    
+    @objc func segmentAction(_ segmentedControl: UISegmentedControl) {
+            switch (segmentedControl.selectedSegmentIndex) {
+            case 0:
+                fetchTopListAnime()
+                break // Anime
+            case 1:
+                fetchTopListManga()
+                break // Manga
+            default:
+                break
+            }
+        }
 
-    func fetchTopList() {
+    func fetchTopListAnime() {
         
         self.isLoading.value = true
         
         self.service.getFeed(fromRoute: Routes.upcoming, parameters: nil) { [weak self] (result) in
+            
+            self?.isLoading.value = false
+            
+            switch result {
+                case .success(let feedResult):
+                
+                self?.respone.value = feedResult
+
+                case .failure(let error):
+                    self?.setError(error)
+            }
+        }
+    }
+    
+    func fetchTopListManga() {
+        
+        self.isLoading.value = true
+        
+        self.service.getFeed(fromRoute: Routes.manga, parameters: nil) { [weak self] (result) in
             
             self?.isLoading.value = false
             
@@ -119,10 +171,19 @@ class TopViewModel: NSObject {
     
     func loadFavorieData() {
         let userDefaults = UserDefaults.standard
-        if UserDefaults.standard.object(forKey: "favorite") != nil {
+        if UserDefaults.standard.object(forKey: "favoritesAnime") != nil {
             
             do {
-                self.favorites.value = try userDefaults.getObject(forKey: "favorite", castTo: Set<Top>.self)
+                self.favoritesAnime.value = try userDefaults.getObject(forKey: "favoritesAnime", castTo: Set<Top>.self)
+            } catch  {
+                print(error)
+            }
+        }
+        
+        if UserDefaults.standard.object(forKey: "favoritesManga") != nil {
+            
+            do {
+                self.favoritesManga.value = try userDefaults.getObject(forKey: "favoritesManga", castTo: Set<Top>.self)
             } catch  {
                 print(error)
             }
@@ -141,7 +202,7 @@ extension TopViewModel: UITableViewDataSource {
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: to.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: to.safeAreaLayoutGuide.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: to.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: to.safeAreaLayoutGuide.topAnchor, constant: 44),
             tableView.bottomAnchor.constraint(equalTo: to.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
@@ -246,7 +307,7 @@ extension TopViewModel: UITableViewDelegate {
         
         let topItem = topItems.top[indexPath.row]
         
-        coordinator?.goToDetailView(top: topItem, item: topItems)
+        coordinator?.goToDetailView(top: topItem, item: topItems, section: indexPath.section)
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -254,37 +315,66 @@ extension TopViewModel: UITableViewDelegate {
         let notFavoriteAction = UIContextualAction(style: .normal, title: "unFavorite") { (action, view, completionHandler) in
                 
                     let item = self.respone.value
-
-
-                    if let top = item?.top[indexPath.row] {
-                        
-                        self.favorites.value.remove(top)
-                        
-                        do {
-                            try UserDefaults.standard.setObject(self.favorites.value, forKey: "favorite")
-                            UserDefaults.standard.synchronize()
-                        } catch  {
-                            print(error)
-                        }
+            
+            if self.segmentedControl.selectedSegmentIndex == 0 {
+                if let top = item?.top[indexPath.row] {
+                    
+                    self.favoritesAnime.value.remove(top)
+                    
+                    do {
+                        try UserDefaults.standard.setObject(self.favoritesAnime.value, forKey: "favoritesAnime")
+                        UserDefaults.standard.synchronize()
+                    } catch  {
+                        print(error)
                     }
+                }
+            } else {
+                if let top = item?.top[indexPath.row] {
+                    
+                    self.favoritesManga.value.remove(top)
+                    
+                    do {
+                        try UserDefaults.standard.setObject(self.favoritesManga.value, forKey: "favoritesManga")
+                        UserDefaults.standard.synchronize()
+                    } catch  {
+                        print(error)
+                    }
+                }
+            }
+            
+                    
 
                     completionHandler(false)
               }
               let favoriteAction = UIContextualAction(style: .normal, title: "Favorite") { (action, view, completionHandler) in
                 
                         let item = self.respone.value
-                                       
-                        if let top = item?.top[indexPath.row] {
-                            self.favorites.value.insert(top)
-                            
-                            do {
-                                try UserDefaults.standard.setObject(self.favorites.value, forKey: "favorite")
-                                UserDefaults.standard.synchronize()
-                            } catch  {
-                                print(error)
-                            }
-                        }
+                
+                if self.segmentedControl.selectedSegmentIndex == 0 {
+                    if let top = item?.top[indexPath.row] {
+                        self.favoritesAnime.value.insert(top)
                         
+                        do {
+                            try UserDefaults.standard.setObject(self.favoritesAnime.value, forKey: "favoritesAnime")
+                            UserDefaults.standard.synchronize()
+                        } catch  {
+                            print(error)
+                        }
+                    }
+                    
+                } else {
+                    if let top = item?.top[indexPath.row] {
+                        self.favoritesManga.value.insert(top)
+                        
+                        do {
+                            try UserDefaults.standard.setObject(self.favoritesManga.value, forKey: "favoritesManga")
+                            UserDefaults.standard.synchronize()
+                        } catch  {
+                            print(error)
+                        }
+                    }
+                }
+                                    
                         completionHandler(true)
               }
         

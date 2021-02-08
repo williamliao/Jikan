@@ -22,6 +22,8 @@ class TopContentViewModel: NSObject {
     var item: Response!
     var top: Top!
     
+    var isAnime:Bool = true
+    
     init(webView: WKWebView, topViewModel: TopViewModel) {
         self.webView = webView
         self.topViewModel = topViewModel
@@ -70,17 +72,32 @@ extension TopContentViewModel {
         let userDefaults = UserDefaults.standard
         if UserDefaults.standard.object(forKey: "favorite") != nil {
             
-            do {
-                self.topViewModel.favorites.value = try userDefaults.getObject(forKey: "favorite", castTo: Set<Top>.self)
-            } catch  {
-                print(error)
+            if isAnime  {
+                do {
+                    self.topViewModel.favoritesAnime.value = try userDefaults.getObject(forKey: "favoritesAnime", castTo: Set<Top>.self)
+                } catch  {
+                    print(error)
+                }
+                
+                if (self.topViewModel.favoritesAnime.value.contains(top)) {
+                    let backButton = navItem.rightBarButtonItem?.customView as! UIButton
+                    backButton.isSelected = true
+                    navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
+                }
+            } else {
+                do {
+                    self.topViewModel.favoritesManga.value = try userDefaults.getObject(forKey: "favoritesManga", castTo: Set<Top>.self)
+                } catch  {
+                    print(error)
+                }
+                
+                if (self.topViewModel.favoritesManga.value.contains(top)) {
+                    let backButton = navItem.rightBarButtonItem?.customView as! UIButton
+                    backButton.isSelected = true
+                    navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
+                }
             }
             
-            if (self.topViewModel.favorites.value.contains(top)) {
-                let backButton = navItem.rightBarButtonItem?.customView as! UIButton
-                backButton.isSelected = true
-                navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
-            }
         }
     }
     
@@ -90,17 +107,27 @@ extension TopContentViewModel {
         backButton.isSelected = isFavorite
         navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
         
-        if isFavorite {
-            self.topViewModel.favorites.value.insert(top)
-        } else {
-            self.topViewModel.favorites.value.remove(top)
-        }
-        
-        do {
-            try UserDefaults.standard.setObject(self.topViewModel.favorites.value, forKey: "favorite")
-            UserDefaults.standard.synchronize()
-        } catch  {
-            print(error)
+        if isAnime {
+            if isFavorite {
+                self.topViewModel.favoritesAnime.value.insert(top)
+                
+                do {
+                    try UserDefaults.standard.setObject(self.topViewModel.favoritesAnime.value, forKey: "favoritesAnime")
+                    UserDefaults.standard.synchronize()
+                } catch  {
+                    print(error)
+                }
+                
+            } else {
+                self.topViewModel.favoritesManga.value.remove(top)
+                
+                do {
+                    try UserDefaults.standard.setObject(self.topViewModel.favoritesManga.value, forKey: "favoritesManga")
+                    UserDefaults.standard.synchronize()
+                } catch  {
+                    print(error)
+                }
+            }
         }
     }
 }
