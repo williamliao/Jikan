@@ -60,8 +60,9 @@ class ServiceHelper: NSObject, APIClient {
            }, completion: completion)
     }
     
-    func nextPage(page: String, parameters: Any?, completion: @escaping (APIResult<Response, Error>) -> Void) {
-        guard let url = URL(string: self.baseURL+"/top/anime/\(page)/upcoming") else {
+    func nextPage(type: String, subType: String, page: String, parameters: Any?, completion: @escaping (APIResult<Response, Error>) -> Void) {
+        
+        guard let url = URL(string: self.baseURL+"/top/\(type)/\(page)/\(subType)") else {
             let errorTemp = NSError(domain:"", code:999, userInfo:["error": "badURL"])
             completion(.failure(errorTemp))
             return

@@ -102,14 +102,23 @@ class TopViewModel: NSObject {
     
     func loadMoreData() {
         
-        self.service.nextPage(page: "\(currentPage)", parameters: nil) { [weak self] (result) in
+        var type = ""
+        var subType = ""
+        
+        if segmentedControl.selectedSegmentIndex == 0 {
+            type = "anime"
+            subType = "upcoming"
+        } else {
+            type = "manga"
+            subType = "manga"
+        }
+        
+        self.service.nextPage(type: type, subType: subType, page: "\(currentPage)", parameters: nil) { [weak self] (result) in
             self?.isLoading.value = false
             
             switch result {
                 case .success(let feedResult):
-                    
-                   // var old: Response = (self?.respone.value)!
-                    
+                  
                     guard var new = self?.respone.value  else {
                         return
                     }
