@@ -34,7 +34,7 @@ class TopViewModel: NSObject {
     lazy var segmentedControl = UISegmentedControl(items: items)
     
     func createSegmentView(view : UIView) {
-        segmentedControl.frame = CGRect(x: 35, y: 200, width: 250, height: 50)
+        segmentedControl.frame = CGRect.zero
         segmentedControl.addTarget(self, action: #selector(segmentAction(_:)), for: .valueChanged)
         segmentedControl.selectedSegmentIndex = 0
         view.addSubview(segmentedControl)
@@ -262,7 +262,7 @@ extension TopViewModel: UITableViewDataSource {
         
         if let start = items.top[indexPath.row].start_date, let end = items.top[indexPath.row].end_date  {
             cell?.startLabel.text = "start \(start)"
-            cell?.endLabel.text = "start \(end)"
+            cell?.endLabel.text = "end \(end)"
         }
         
         DispatchQueue.global(qos:.userInteractive).async {
@@ -323,74 +323,51 @@ extension TopViewModel: UITableViewDelegate {
         
         let notFavoriteAction = UIContextualAction(style: .normal, title: "unFavorite") { (action, view, completionHandler) in
                 
-                    let item = self.respone.value
-            
+            let item = self.respone.value
+
             if self.segmentedControl.selectedSegmentIndex == 0 {
                 if let top = item?.top[indexPath.row] {
-                    
                     self.favoritesAnime.value.remove(top)
-                    
-                    do {
-                        try UserDefaults.standard.setObject(self.favoritesAnime.value, forKey: "favoritesAnime")
-                        UserDefaults.standard.synchronize()
-                    } catch  {
-                        print(error)
-                    }
                 }
             } else {
                 if let top = item?.top[indexPath.row] {
-                    
                     self.favoritesManga.value.remove(top)
-                    
-                    do {
-                        try UserDefaults.standard.setObject(self.favoritesManga.value, forKey: "favoritesManga")
-                        UserDefaults.standard.synchronize()
-                    } catch  {
-                        print(error)
-                    }
                 }
             }
             
-                    
+            self.saveToFavorite()
 
-                    completionHandler(false)
-              }
-              let favoriteAction = UIContextualAction(style: .normal, title: "Favorite") { (action, view, completionHandler) in
+            completionHandler(false)
+        }
+        let favoriteAction = UIContextualAction(style: .normal, title: "Favorite") { (action, view, completionHandler) in
                 
-                        let item = self.respone.value
-                
-                if self.segmentedControl.selectedSegmentIndex == 0 {
-                    if let top = item?.top[indexPath.row] {
-                        self.favoritesAnime.value.insert(top)
-                        
-                        do {
-                            try UserDefaults.standard.setObject(self.favoritesAnime.value, forKey: "favoritesAnime")
-                            UserDefaults.standard.synchronize()
-                        } catch  {
-                            print(error)
-                        }
-                    }
-                    
-                } else {
-                    if let top = item?.top[indexPath.row] {
-                        self.favoritesManga.value.insert(top)
-                        
-                        do {
-                            try UserDefaults.standard.setObject(self.favoritesManga.value, forKey: "favoritesManga")
-                            UserDefaults.standard.synchronize()
-                        } catch  {
-                            print(error)
-                        }
-                    }
+            let item = self.respone.value
+
+            if self.segmentedControl.selectedSegmentIndex == 0 {
+                if let top = item?.top[indexPath.row] {
+                    self.favoritesAnime.value.insert(top)
                 }
-                                    
-                        completionHandler(true)
-              }
-        
-                notFavoriteAction.backgroundColor = .red
-                favoriteAction.backgroundColor = .gray
-        
-        
-              return UISwipeActionsConfiguration(actions: [notFavoriteAction, favoriteAction])
+            } else {
+                if let top = item?.top[indexPath.row] {
+                    self.favoritesManga.value.insert(top)
+                }
+            }
+                self.saveToFavorite()
+                completionHandler(true)
+            }
+
+            notFavoriteAction.backgroundColor = .red
+            favoriteAction.backgroundColor = .gray
+
+            return UISwipeActionsConfiguration(actions: [notFavoriteAction, favoriteAction])
        }
+    
+    func saveToFavorite() {
+        do {
+            try UserDefaults.standard.setObject(self.segmentedControl.selectedSegmentIndex == 0 ? self.favoritesAnime.value : self.favoritesManga.value, forKey: self.segmentedControl.selectedSegmentIndex == 0 ? "favoritesAnime": "favoritesManga")
+            UserDefaults.standard.synchronize()
+        } catch  {
+            print(error)
+        }
+    }
 }

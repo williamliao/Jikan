@@ -98,11 +98,11 @@ extension JikanTests {
         
         guard let top = topViewModel.respone.value?.top[0], let top2 = topViewModel.respone.value?.top[1], let top3 = topViewModel.respone.value?.top[2] else { return  }
         
-        topViewModel.favorites.value.insert(top)
-        topViewModel.favorites.value.insert(top2)
-        topViewModel.favorites.value.insert(top3)
+        topViewModel.favoritesAnime.value.insert(top)
+        topViewModel.favoritesAnime.value.insert(top2)
+        topViewModel.favoritesAnime.value.insert(top3)
         
-        XCTAssert(topViewModel.favorites.value.count == 3, "Favorite count error")
+        XCTAssert(topViewModel.favoritesAnime.value.count == 3, "Favorite count error")
     }
     
     func testValidCallToJikanGetsHTTPStatusCode200() {

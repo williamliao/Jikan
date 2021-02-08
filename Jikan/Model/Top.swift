@@ -40,5 +40,6 @@ extension Top: Hashable {
         hasher.combine(end_date)
         hasher.combine(members)
         hasher.combine(score)
+        hasher.combine(volumes)
     }
 }
