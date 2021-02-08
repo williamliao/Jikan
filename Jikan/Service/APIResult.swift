@@ -19,7 +19,8 @@ public enum RequestType: String {
 
 protocol APIClient {
     var session: URLSession { get }
-    var cache: URLCache { get }
+    var cacheAnime: URLCache { get }
+    var cacheManga: URLCache { get }
     func fetch<T: Decodable>(with request: URLRequest, decode: @escaping (Decodable) -> T?, completion: @escaping (APIResult<T, Error>) -> Void)
 }
 
@@ -49,32 +50,32 @@ extension APIClient {
                
                 if httpResponse.statusCode == 200 {
                     
-                     let etag = httpResponse.allHeaderFields["ETag"] as? String
-                    UserDefaults.standard.set(etag, forKey: "ETag")
+                     let etag = httpResponse.allHeaderFields["Etag"] as? String
+                    UserDefaults.standard.set(etag, forKey: "Etag")
                     UserDefaults.standard.synchronize()
                     
                     
                     if request.url!.absoluteString.contains("anime") {
-                        if self.cache.cachedResponse(for: request) == nil,
+                        if self.cacheAnime.cachedResponse(for: request) == nil,
                             let data = try? Data(contentsOf: request.url!) {
-                            self.cache.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
+                            self.cacheAnime.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
                             
                             cacheData = data
                             
                         } else {
-                            let cacheRespone: CachedURLResponse = self.cache.cachedResponse(for: request)!
+                            let cacheRespone: CachedURLResponse = self.cacheAnime.cachedResponse(for: request)!
                             
                             cacheData = cacheRespone.data
                         }
                     } else {
-                        if self.cache.cachedResponse(for: request) == nil,
+                        if self.cacheManga.cachedResponse(for: request) == nil,
                             let data = try? Data(contentsOf: request.url!) {
-                            self.cache.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
+                            self.cacheManga.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
                             
                             cacheData = data
                             
                         } else {
-                            let cacheRespone: CachedURLResponse = self.cache.cachedResponse(for: request)!
+                            let cacheRespone: CachedURLResponse = self.cacheManga.cachedResponse(for: request)!
                             
                             cacheData = cacheRespone.data
                         }
@@ -82,15 +83,20 @@ extension APIClient {
                     
                 } else if httpResponse.statusCode == 304 {
                     
-                    let cacheRespone: CachedURLResponse = self.cache.cachedResponse(for: request)!
-                    
-                    cacheData = cacheRespone.data
+                    if request.url!.absoluteString.contains("anime") {
+                        let cacheRespone: CachedURLResponse = self.cacheAnime.cachedResponse(for: request)!
+                        
+                        cacheData = cacheRespone.data
+                    } else {
+                        let cacheRespone: CachedURLResponse = self.cacheManga.cachedResponse(for: request)!
+                        
+                        cacheData = cacheRespone.data
+                    }
                     
                 } else {
                     print("statusCode \(httpResponse.statusCode)")
                 }
                 
-
                 if let data = cacheData {
                     do {
                         let genericModel = try decoder.decode(decodingType, from: data)
