@@ -46,7 +46,7 @@ class TopViewController: UIViewController, Storyboarded {
         
         //viewModel.createSegmentView(view: view)
         //viewModel.createSearchViewController(navItem: self.navigationItem)
-        viewModel.createBarItem(navItem: self.navigationItem, rootView: self.view)
+        //viewModel.createBarItem(navItem: self.navigationItem, rootView: self.view)
         viewModel.fetchTopListAnime()
         viewModel.loadFavorieData()
         
