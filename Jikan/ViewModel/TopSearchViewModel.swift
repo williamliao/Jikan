@@ -12,15 +12,18 @@ class TopSearchViewModel {
     
     var viewModel: TopViewModel!
     
-    var category: SearchItem.ScopeTypeSection!
+   // var category: SearchItem.ScopeTypeSection!
+    
+    var type: String!
+    var subType: String!
     
     init(viewModel: TopViewModel) {
         self.viewModel = viewModel
     }
     
-    func searchFor(text: String,  category: SearchItem.ScopeTypeSection) {
+    func searchFor(text: String,  type: String, subType:String) {
 
-        filterContentForSearchText(text, category: category)
+        filterContentForSearchText(text, type: type, subType: subType)
 
         if viewModel.filterRespone.value.count > 0 {
             viewModel.isSearching.value = true
@@ -35,34 +38,39 @@ class TopSearchViewModel {
     }
     
     func didChangeSelectedScopeButtonIndex(scopeButtonTitle: String, searchText:String) {
-        filterContentForSearchText(searchText)
+        filterContentForSearchText(searchText, type: "", subType: "")
     }
     
     func filterContentForSearchText(_ searchText: String,
-                                    category: SearchItem.ScopeTypeSection? = nil) {
+                                    type: String, subType:String) {
 
         guard let top = viewModel.respone.value?.top else {
             return
         }
         
         viewModel.filterRespone.value = top.filter({ (top: Top) -> Bool in
-            filterTitleKeyword(top: top, searchText: searchText, category: category)
+            filterTitleKeyword(top: top, searchText: searchText, type: type, subType: subType)
         })
+        
+        //print("filterRespone \(viewModel.filterRespone.value)")
     }
     
-    func filterTitleKeyword(top: Top, searchText: String, category: SearchItem.ScopeTypeSection? = nil) -> Bool {
+    func filterTitleKeyword(top: Top, searchText: String, type: String, subType:String) -> Bool {
         
-        let doesCategoryMatch = self.category == category
+      //  let doesCategoryMatch = top.type == type
         
         let isSearchBarEmpty: Bool = searchText.isEmpty
         
-        print("doesCategoryMatch \(doesCategoryMatch) \(self.category) \(category)")
+        //print("doesCategoryMatch \(doesCategoryMatch) \(self.type) \(category)")
         
         if isSearchBarEmpty {
-          return doesCategoryMatch
+          return false
         } else {
-            return doesCategoryMatch && top.title.lowercased()
+            
+           // print("match \(top.title.lowercased()) \(doesCategoryMatch) \(top.type)")
+            return top.title.lowercased()
               .contains(searchText.lowercased())
+
         }
         
     }

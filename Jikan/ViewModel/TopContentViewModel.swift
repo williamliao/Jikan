@@ -22,7 +22,7 @@ class TopContentViewModel: NSObject {
     var item: Response!
     var top: Top!
     
-    var isAnime:Bool = true
+    var currentType:String = ""
     
     init(webView: WKWebView, topViewModel: TopViewModel) {
         self.webView = webView
@@ -71,8 +71,6 @@ extension TopContentViewModel {
     func loadFavorite() {
         let userDefaults = UserDefaults.standard
         if UserDefaults.standard.object(forKey: "favoritesAnime") != nil {
-            
-            if isAnime  {
                 do {
                     self.topViewModel.favoritesAnime.value = try userDefaults.getObject(forKey: "favoritesAnime", castTo: Set<Top>.self)
                 } catch  {
@@ -84,20 +82,48 @@ extension TopContentViewModel {
                     backButton.isSelected = true
                     navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
                 }
-            } else if UserDefaults.standard.object(forKey: "favoritesManga") != nil {
-                do {
-                    self.topViewModel.favoritesManga.value = try userDefaults.getObject(forKey: "favoritesManga", castTo: Set<Top>.self)
-                } catch  {
-                    print(error)
-                }
-                
-                if (self.topViewModel.favoritesManga.value.contains(top)) {
-                    let backButton = navItem.rightBarButtonItem?.customView as! UIButton
-                    backButton.isSelected = true
-                    navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
-                }
+        }
+        
+        if UserDefaults.standard.object(forKey: "favoritesManga") != nil {
+            do {
+                self.topViewModel.favoritesManga.value = try userDefaults.getObject(forKey: "favoritesManga", castTo: Set<Top>.self)
+            } catch  {
+                print(error)
             }
             
+            if (self.topViewModel.favoritesManga.value.contains(top)) {
+                let backButton = navItem.rightBarButtonItem?.customView as! UIButton
+                backButton.isSelected = true
+                navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
+            }
+        }
+        
+        if UserDefaults.standard.object(forKey: "favoritesPeople") != nil {
+            do {
+                self.topViewModel.favoritesPeople.value = try userDefaults.getObject(forKey: "favoritesPeople", castTo: Set<Top>.self)
+            } catch  {
+                print(error)
+            }
+            
+            if (self.topViewModel.favoritesPeople.value.contains(top)) {
+                let backButton = navItem.rightBarButtonItem?.customView as! UIButton
+                backButton.isSelected = true
+                navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
+            }
+        }
+        
+        if UserDefaults.standard.object(forKey: "favoritesCharaters") != nil {
+            do {
+                self.topViewModel.favoritesCharaters.value = try userDefaults.getObject(forKey: "favoritesCharaters", castTo: Set<Top>.self)
+            } catch  {
+                print(error)
+            }
+            
+            if (self.topViewModel.favoritesCharaters.value.contains(top)) {
+                let backButton = navItem.rightBarButtonItem?.customView as! UIButton
+                backButton.isSelected = true
+                navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
+            }
         }
     }
     
@@ -107,7 +133,7 @@ extension TopContentViewModel {
         backButton.isSelected = isFavorite
         navItem.rightBarButtonItem = UIBarButtonItem(customView: backButton)
         
-        if isAnime {
+        if currentType == "anime" {
             if isFavorite {
                 self.topViewModel.favoritesAnime.value.insert(top)
             } else {
@@ -116,7 +142,7 @@ extension TopContentViewModel {
             
             saveToFavorite()
             
-        } else {
+        } else if currentType == "manga" {
             
             if isFavorite {
                 self.topViewModel.favoritesManga.value.insert(top)
@@ -125,12 +151,42 @@ extension TopContentViewModel {
                 
             }
             saveToFavorite()
+        } else if currentType == "people" {
+            
+            if isFavorite {
+                self.topViewModel.favoritesPeople.value.insert(top)
+            } else {
+                self.topViewModel.favoritesPeople.value.remove(top)
+                
+            }
+            saveToFavorite()
+        }
+        else if currentType == "charaters" {
+            
+            if isFavorite {
+                self.topViewModel.favoritesCharaters.value.insert(top)
+            } else {
+                self.topViewModel.favoritesCharaters.value.remove(top)
+                
+            }
+            saveToFavorite()
         }
     }
     
     func saveToFavorite() {
         do {
-            try UserDefaults.standard.setObject(isAnime ? self.topViewModel.favoritesAnime.value : self.topViewModel.favoritesManga.value, forKey: isAnime ? "favoritesAnime": "favoritesManga")
+            //try UserDefaults.standard.setObject(isAnime ? self.topViewModel.favoritesAnime.value : self.topViewModel.favoritesManga.value, forKey: isAnime ? "favoritesAnime": "favoritesManga")
+            
+            if currentType == "anime" {
+                try UserDefaults.standard.setObject(self.topViewModel.favoritesAnime.value, forKey: "favoritesAnime")
+            } else if currentType == "manga" {
+                try UserDefaults.standard.setObject(self.topViewModel.favoritesManga.value, forKey: "favoritesManga")
+            } else if currentType == "people" {
+                try UserDefaults.standard.setObject(self.topViewModel.favoritesPeople.value, forKey: "favoritesPeople")
+            } else if currentType == "charaters" {
+                try UserDefaults.standard.setObject(self.topViewModel.favoritesCharaters.value, forKey: "favoritesCharaters")
+            }
+            
             UserDefaults.standard.synchronize()
         } catch  {
             print(error)

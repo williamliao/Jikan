@@ -44,8 +44,9 @@ class TopViewController: UIViewController, Storyboarded {
             print("error = \(error.localizedDescription)")
         }
         
-        viewModel.createSegmentView(view: view)
-        viewModel.createSearchViewController(navItem: self.navigationItem)
+        //viewModel.createSegmentView(view: view)
+        //viewModel.createSearchViewController(navItem: self.navigationItem)
+        viewModel.createBarItem(navItem: self.navigationItem, rootView: self.view)
         viewModel.fetchTopListAnime()
         viewModel.loadFavorieData()
         

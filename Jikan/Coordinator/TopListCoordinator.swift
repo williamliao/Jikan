@@ -72,7 +72,7 @@ class TopListCoordinator: Coordinator {
 }
 
 extension TopListCoordinator {
-    func goToDetailView(top: Top, item: Response, section: Int) {
+    func goToDetailView(top: Top, item: Response, type: String) {
         let webView = WKWebView()
         let topDetailVC = TopContentViewController.instantiate()
         //topDetailVC.coordinator = self
@@ -82,7 +82,8 @@ extension TopListCoordinator {
         if let currentNavController = self.rootViewController.selectedViewController as? UINavigationController {
             
             let viewModel = TopContentViewModel(webView: webView, topViewModel: topViewModel)
-            viewModel.isAnime = section == 0 ? true : false
+            //viewModel.isAnime = section == 0 ? true : false
+            viewModel.currentType = type
             topDetailVC.viewModel = viewModel
             
             currentNavController.pushViewController(topDetailVC, animated: true)

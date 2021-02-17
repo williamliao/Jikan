@@ -14,13 +14,17 @@ struct Top: Codable {
 	let title: String
 	let url: String
 	let image_url: String
-	let type: String
+	let type: String?
 	let episodes: Int?
 	let start_date: String?
 	let end_date: String?
-	let members: Int
-	let score: Double
+	let members: Int?
+	let score: Double?
     let volumes: Int?
+    let name_kanji: String?
+    let animeography: [Animeography]?
+    let mangaography: [Mangaography]?
+    let favorites: Int?
 }
 
 extension Top: Hashable {
@@ -41,5 +45,9 @@ extension Top: Hashable {
         hasher.combine(members)
         hasher.combine(score)
         hasher.combine(volumes)
+        hasher.combine(name_kanji)
+        hasher.combine(animeography)
+        hasher.combine(mangaography)
+        hasher.combine(favorites)
     }
 }

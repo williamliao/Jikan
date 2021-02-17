@@ -124,8 +124,8 @@ extension SearchViewController: UISearchResultsUpdating {
         let searchBar = searchController.searchBar
         let category = SearchItem.ScopeTypeSection(rawValue:
           searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex])
-        self.searchViewModel.category = category!
-        self.searchViewModel.searchFor(text: strippedString, category: category!)
+       // self.searchViewModel.category = category!
+       // self.searchViewModel.searchFor(text: strippedString, category: category!)
     }
 }
 
@@ -149,7 +149,7 @@ extension SearchViewController :UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         let category = SearchItem.ScopeTypeSection(rawValue:
           searchBar.scopeButtonTitles![selectedScope])
-        self.searchViewModel.category = category
-        self.searchViewModel.searchFor(text: searchBar.text!, category: category!)
+       // self.searchViewModel.category = category
+        //self.searchViewModel.searchFor(text: searchBar.text!, category: category!)
     }
 }

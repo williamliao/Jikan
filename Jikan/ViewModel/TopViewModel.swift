@@ -25,6 +25,9 @@ class TopViewModel: NSObject {
     var favoritesAnime:  Observable<Set<Top>> = Observable(Set<Top>())
     var favoritesManga:  Observable<Set<Top>> = Observable(Set<Top>())
     
+    var favoritesPeople:  Observable<Set<Top>> = Observable(Set<Top>())
+    var favoritesCharaters:  Observable<Set<Top>> = Observable(Set<Top>())
+    
     var filterRespone: Observable<[Top]> = Observable([])
     
     var isSearching: Observable<Bool> = Observable(false)
@@ -37,6 +40,11 @@ class TopViewModel: NSObject {
     
     let items = ["Anime", "Manga"]
     lazy var segmentedControl = UISegmentedControl(items: items)
+    lazy var customizeSearchView = CustomizeSearchView(viewModel: self)
+    weak var topTableView: UITableView!
+    
+    var typeViewHeightConstraint: NSLayoutConstraint!
+    var topTableViewConstraint: NSLayoutConstraint!
     
     func createSegmentView(view : UIView) {
         segmentedControl.frame = CGRect.zero
@@ -71,7 +79,7 @@ class TopViewModel: NSObject {
         
         self.isLoading.value = true
         
-        self.service.getFeed(fromRoute: Routes.upcoming, parameters: nil) { [weak self] (result) in
+        self.service.getFeed(fromRoute: Routes.airing, parameters: nil) { [weak self] (result) in
             
             self?.isLoading.value = false
             
@@ -105,41 +113,95 @@ class TopViewModel: NSObject {
         }
     }
     
-    func loadMoreData() {
+    func fetchDataByType(type: String, subType: String) {
+        self.isLoading.value = true
         
-        var type = ""
-        var subType = ""
-        
-        if segmentedControl.selectedSegmentIndex == 0 {
-            type = "anime"
-            subType = "upcoming"
-        } else {
-            type = "manga"
-            subType = "manga"
-        }
-        
-        self.service.nextPage(type: type, subType: subType, page: "\(currentPage)", parameters: nil) { [weak self] (result) in
+        self.service.getFeedWithType(type: type, subType: subType, page: "1", parameters: nil) { [weak self] (result) in
+            
             self?.isLoading.value = false
             
             switch result {
                 case .success(let feedResult):
-                  
-                    guard var new = self?.respone.value  else {
-                        return
-                    }
-                    
-                    new.request_hash = feedResult.request_hash
-                    new.request_cached = feedResult.request_cached
-                    new.request_cache_expiry = feedResult.request_cache_expiry
-                    new.top.append(contentsOf: feedResult.top)
-                    
                 
-                self?.respone.value = new
+                self?.respone.value = feedResult
 
                 case .failure(let error):
                     self?.setError(error)
             }
         }
+    }
+    
+    func fetchDataWithoutType(type: String, subType: String) {
+        self.isLoading.value = true
+        
+        self.service.getFeedWithoutType(type: type, subType: subType, page: "1", parameters: nil) { [weak self] (result) in
+            
+            self?.isLoading.value = false
+            
+            switch result {
+                case .success(let feedResult):
+                
+                self?.respone.value = feedResult
+
+                case .failure(let error):
+                    self?.setError(error)
+            }
+        }
+    }
+    
+    func loadMoreData() {
+        
+        //self?.isLoading.value = true
+        
+        if customizeSearchView.currentType == "people" || customizeSearchView.currentType == "charaters" {
+            self.service.nextPageWithoutType(type: customizeSearchView.currentType, subType: "", page: "\(currentPage)", parameters: nil) { [weak self] (result) in
+                self?.isLoading.value = false
+                
+                switch result {
+                    case .success(let feedResult):
+                      
+                        guard var new = self?.respone.value  else {
+                            return
+                        }
+                        
+                        new.request_hash = feedResult.request_hash
+                        new.request_cached = feedResult.request_cached
+                        new.request_cache_expiry = feedResult.request_cache_expiry
+                        new.top.append(contentsOf: feedResult.top)
+                        
+                    
+                    self?.respone.value = new
+
+                    case .failure(let error):
+                        self?.setError(error)
+                }
+            }
+        } else {
+            self.service.nextPage(type: customizeSearchView.currentType, subType: customizeSearchView.currentSubType, page: "\(currentPage)", parameters: nil) { [weak self] (result) in
+                self?.isLoading.value = false
+                
+                switch result {
+                    case .success(let feedResult):
+                      
+                        guard var new = self?.respone.value  else {
+                            return
+                        }
+                        
+                        new.request_hash = feedResult.request_hash
+                        new.request_cached = feedResult.request_cached
+                        new.request_cache_expiry = feedResult.request_cache_expiry
+                        new.top.append(contentsOf: feedResult.top)
+                        
+                    
+                    self?.respone.value = new
+
+                    case .failure(let error):
+                        self?.setError(error)
+                }
+            }
+        }
+       
+        
     }
     
     func checkCacheExpiry(respone: Response) -> Bool {
@@ -202,6 +264,24 @@ class TopViewModel: NSObject {
                 print(error)
             }
         }
+        
+        if UserDefaults.standard.object(forKey: "favoritesPeople") != nil {
+            
+            do {
+                self.favoritesPeople.value = try userDefaults.getObject(forKey: "favoritesPeople", castTo: Set<Top>.self)
+            } catch  {
+                print(error)
+            }
+        }
+        
+        if UserDefaults.standard.object(forKey: "favoritesCharaters") != nil {
+            
+            do {
+                self.favoritesCharaters.value = try userDefaults.getObject(forKey: "favoritesCharaters", castTo: Set<Top>.self)
+            } catch  {
+                print(error)
+            }
+        }
     }
 }
 
@@ -216,9 +296,28 @@ extension TopViewModel: UITableViewDataSource {
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: to.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: to.safeAreaLayoutGuide.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: to.safeAreaLayoutGuide.topAnchor, constant: 44),
             tableView.bottomAnchor.constraint(equalTo: to.safeAreaLayoutGuide.bottomAnchor),
         ])
+        //topTableViewConstraint.constant = 270
+        topTableViewConstraint = tableView.topAnchor.constraint(equalTo: to.safeAreaLayoutGuide.topAnchor, constant: 270)
+        topTableViewConstraint.isActive = true
+        
+        customizeSearchView = CustomizeSearchView(viewModel: self)
+        customizeSearchView.translatesAutoresizingMaskIntoConstraints = false
+        //customizeSearchView.isHidden = true
+    
+        to.addSubview(customizeSearchView)
+        
+        let guide = to.safeAreaLayoutGuide
+       
+        NSLayoutConstraint.activate([
+            customizeSearchView.topAnchor.constraint(equalTo: guide.topAnchor),
+            customizeSearchView.leadingAnchor.constraint(equalTo: guide.leadingAnchor),
+            customizeSearchView.trailingAnchor.constraint(equalTo: guide.trailingAnchor),
+        ])
+        
+        typeViewHeightConstraint = customizeSearchView.heightAnchor.constraint(equalToConstant: 270)
+        typeViewHeightConstraint.isActive = true
     }
     
     func makeDateSourceForTableView(tableView: UITableView) {
@@ -258,7 +357,6 @@ extension TopViewModel: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: TopTableViewCell.reuseIdentifier, for: indexPath) as? TopTableViewCell
         
         let top = self.isSearching.value ? filterRespone.value[indexPath.row] : items.top[indexPath.row]
-        
         
         cell?.titleLabel.text = top.title
         let rank = top.rank
@@ -327,9 +425,11 @@ extension TopViewModel: UITableViewDelegate {
         
         guard let topItems = respone.value else { return }
         
-        let topItem = topItems.top[indexPath.row]
+        let topItem = self.isSearching.value ? filterRespone.value[indexPath.row] : topItems.top[indexPath.row]
         
-        coordinator?.goToDetailView(top: topItem, item: topItems, section: self.segmentedControl.selectedSegmentIndex == 0 ? 0 : 1)
+        //let topItem = topItems.top[indexPath.row]
+        
+        coordinator?.goToDetailView(top: topItem, item: topItems, type: customizeSearchView.currentType)
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -337,17 +437,25 @@ extension TopViewModel: UITableViewDelegate {
         let notFavoriteAction = UIContextualAction(style: .normal, title: "unFavorite") { (action, view, completionHandler) in
                 
             let item = self.respone.value
-
-            if self.segmentedControl.selectedSegmentIndex == 0 {
+            
+            if self.customizeSearchView.currentType == "anime" {
                 if let top = item?.top[indexPath.row] {
                     self.favoritesAnime.value.remove(top)
                 }
-            } else {
+            } else if self.customizeSearchView.currentType == "manga" {
                 if let top = item?.top[indexPath.row] {
                     self.favoritesManga.value.remove(top)
                 }
+            } else if self.customizeSearchView.currentType == "people" {
+                if let top = item?.top[indexPath.row] {
+                    self.favoritesPeople.value.remove(top)
+                }
+            } else {
+                if let top = item?.top[indexPath.row] {
+                    self.favoritesCharaters.value.remove(top)
+                }
             }
-            
+
             self.saveToFavorite()
 
             completionHandler(false)
@@ -355,18 +463,25 @@ extension TopViewModel: UITableViewDelegate {
         let favoriteAction = UIContextualAction(style: .normal, title: "Favorite") { (action, view, completionHandler) in
                 
             let item = self.respone.value
-
-            if self.segmentedControl.selectedSegmentIndex == 0 {
-                if let top = item?.top[indexPath.row] {
-                    self.favoritesAnime.value.insert(top)
+            
+                if self.customizeSearchView.currentType == "anime" {
+                    if let top = item?.top[indexPath.row] {
+                        self.favoritesAnime.value.insert(top)
+                    }
+                } else if self.customizeSearchView.currentType == "manga" {
+                    if let top = item?.top[indexPath.row] {
+                        self.favoritesManga.value.insert(top)
+                    }
+                } else if self.customizeSearchView.currentType == "people" {
+                    if let top = item?.top[indexPath.row] {
+                        self.favoritesPeople.value.insert(top)
+                    }
+                } else {
+                    if let top = item?.top[indexPath.row] {
+                        self.favoritesCharaters.value.insert(top)
+                    }
                 }
-            } else {
-                if let top = item?.top[indexPath.row] {
-                    self.favoritesManga.value.insert(top)
-                }
-            }
-                self.saveToFavorite()
-                completionHandler(true)
+  
             }
 
             notFavoriteAction.backgroundColor = .red
@@ -377,7 +492,24 @@ extension TopViewModel: UITableViewDelegate {
     
     func saveToFavorite() {
         do {
-            try UserDefaults.standard.setObject(self.segmentedControl.selectedSegmentIndex == 0 ? self.favoritesAnime.value : self.favoritesManga.value, forKey: self.segmentedControl.selectedSegmentIndex == 0 ? "favoritesAnime": "favoritesManga")
+            //try UserDefaults.standard.setObject(self.segmentedControl.selectedSegmentIndex == 0 ? self.favoritesAnime.value : self.favoritesManga.value, forKey: self.segmentedControl.selectedSegmentIndex == 0 ? "favoritesAnime": "favoritesManga")
+            
+            if self.customizeSearchView.currentType == "anime" {
+                
+                try UserDefaults.standard.setObject(self.favoritesAnime.value, forKey: "favoritesAnime")
+                
+            } else if self.customizeSearchView.currentType == "manga" {
+                
+                try UserDefaults.standard.setObject(self.favoritesManga.value, forKey: "favoritesManga")
+                
+            } else if self.customizeSearchView.currentType == "people" {
+                
+                try UserDefaults.standard.setObject(self.favoritesPeople.value, forKey: "favoritesPeople")
+                
+            } else {
+                try UserDefaults.standard.setObject(self.favoritesCharaters.value, forKey: "favoritesCharaters")
+            }
+            
             UserDefaults.standard.synchronize()
         } catch  {
             print(error)
@@ -398,5 +530,21 @@ extension TopViewModel {
         }
         
         //candyTableView.sectionHeaderHeight = UITableView.automaticDimension
+    }
+    
+    func createBarItem(navItem: UINavigationItem, rootView: UIView) {
+        let search = UIButton(frame: CGRect(x: 0, y: 0, width: 25, height: 25))
+        search.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
+        //backButton.setImage(UIImage(systemName: "heart.fill"), for: .selected)
+        search.addTarget(self, action: #selector(showSearchView), for: .touchUpInside)
+        navItem.rightBarButtonItem = UIBarButtonItem(customView: search)
+        
+        
+    }
+    
+    @objc func showSearchView() {
+        customizeSearchView.isHidden = !customizeSearchView.isHidden
+        
+      
     }
 }

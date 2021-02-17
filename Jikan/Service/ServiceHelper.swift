@@ -13,7 +13,15 @@ public struct Route {
 }
 
 public struct Routes {
+    static let airing = Route(endpoint: "/top/anime/1/airing")
     static let upcoming = Route(endpoint: "/top/anime/1/upcoming")
+    static let tv = Route(endpoint: "/top/anime/1/tv")
+    static let movie = Route(endpoint: "/top/anime/1/movie")
+    static let ova = Route(endpoint: "/top/anime/1/ova")
+    static let special = Route(endpoint: "/top/anime/1/special")
+    static let bypopularityAnime = Route(endpoint: "/top/anime/1/bypopularity")
+    static let favoriteAnime = Route(endpoint: "/top/anime/1/favorite")
+    
     static let manga = Route(endpoint: "/top/manga/1/manga")
 }
 
@@ -21,6 +29,10 @@ class ServiceHelper: NSObject, APIClient {
     var cacheAnime: URLCache = URLCache()
     
     var cacheManga: URLCache = URLCache()
+    
+    var cachePeople: URLCache = URLCache()
+    
+    var cacheCharaters: URLCache = URLCache()
 
     let baseURL: String
     
@@ -63,6 +75,48 @@ class ServiceHelper: NSObject, APIClient {
     func nextPage(type: String, subType: String, page: String, parameters: Any?, completion: @escaping (APIResult<Response, Error>) -> Void) {
         
         guard let url = URL(string: self.baseURL+"/top/\(type)/\(page)/\(subType)") else {
+            let errorTemp = NSError(domain:"", code:999, userInfo:["error": "badURL"])
+            completion(.failure(errorTemp))
+            return
+        }
+               
+        fetch(with: clientURLRequest(url: url, method: .get) as URLRequest, decode: { json -> Response? in
+               guard let feedResult = json as? Response else { return  nil }
+               return feedResult
+           }, completion: completion)
+    }
+    
+    func nextPageWithoutType(type: String, subType: String, page: String, parameters: Any?, completion: @escaping (APIResult<Response, Error>) -> Void) {
+        
+        guard let url = URL(string: self.baseURL+"/top/\(type)/\(page)/") else {
+            let errorTemp = NSError(domain:"", code:999, userInfo:["error": "badURL"])
+            completion(.failure(errorTemp))
+            return
+        }
+               
+        fetch(with: clientURLRequest(url: url, method: .get) as URLRequest, decode: { json -> Response? in
+               guard let feedResult = json as? Response else { return  nil }
+               return feedResult
+           }, completion: completion)
+    }
+    
+    func getFeedWithType(type: String, subType: String, page: String, parameters: Any?, completion: @escaping (APIResult<Response, Error>) -> Void) {
+        
+        guard let url = URL(string: self.baseURL+"/top/\(type)/\(page)/\(subType)") else {
+            let errorTemp = NSError(domain:"", code:999, userInfo:["error": "badURL"])
+            completion(.failure(errorTemp))
+            return
+        }
+               
+        fetch(with: clientURLRequest(url: url, method: .get) as URLRequest, decode: { json -> Response? in
+               guard let feedResult = json as? Response else { return  nil }
+               return feedResult
+           }, completion: completion)
+    }
+    
+    func getFeedWithoutType(type: String, subType: String, page: String, parameters: Any?, completion: @escaping (APIResult<Response, Error>) -> Void) {
+        
+        guard let url = URL(string: self.baseURL+"/top/\(type)/\(page)/") else {
             let errorTemp = NSError(domain:"", code:999, userInfo:["error": "badURL"])
             completion(.failure(errorTemp))
             return

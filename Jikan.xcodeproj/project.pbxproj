@@ -37,6 +37,8 @@
 		C80CC75C25D21A6100631E2F /* Type.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80CC75B25D21A6100631E2F /* Type.swift */; };
 		C83A3EC925D0D15F007DEF56 /* FakeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83A3EC825D0D15F007DEF56 /* FakeData.swift */; };
 		C83A3ED325D0D87E007DEF56 /* top.json in Resources */ = {isa = PBXBuildFile; fileRef = C83A3EC025D0D155007DEF56 /* top.json */; };
+		C8BB17F725DCBC490060E3CB /* CustomizeSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8BB17F625DCBC490060E3CB /* CustomizeSearchView.swift */; };
+		C8BB17FF25DCF8370060E3CB /* Animeography.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8BB17FE25DCF8370060E3CB /* Animeography.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +95,8 @@
 		C80CC75B25D21A6100631E2F /* Type.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Type.swift; sourceTree = "<group>"; };
 		C83A3EC025D0D155007DEF56 /* top.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = top.json; sourceTree = "<group>"; };
 		C83A3EC825D0D15F007DEF56 /* FakeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeData.swift; sourceTree = "<group>"; };
+		C8BB17F625DCBC490060E3CB /* CustomizeSearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomizeSearchView.swift; sourceTree = "<group>"; };
+		C8BB17FE25DCF8370060E3CB /* Animeography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animeography.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,6 +189,7 @@
 				55033C0B25CF730000403A4C /* Response.swift */,
 				55033C0C25CF730000403A4C /* Top.swift */,
 				C80CC75B25D21A6100631E2F /* Type.swift */,
+				C8BB17FE25DCF8370060E3CB /* Animeography.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -203,6 +208,7 @@
 		55033C0825CF72E000403A4C /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				C8BB17F625DCBC490060E3CB /* CustomizeSearchView.swift */,
 				C80CC75125D213BC00631E2F /* SearchViewController.swift */,
 				55033C1625CF799D00403A4C /* TopViewController.swift */,
 				55033C1D25CF81EC00403A4C /* TopTableViewCell.swift */,
@@ -382,6 +388,7 @@
 				55033BD725CF72B800403A4C /* AppDelegate.swift in Sources */,
 				55033C3B25CFCAD700403A4C /* Coordinator.swift in Sources */,
 				55033C3A25CFCAD700403A4C /* AppCoordinator.swift in Sources */,
+				C8BB17F725DCBC490060E3CB /* CustomizeSearchView.swift in Sources */,
 				55033C3425CFC54E00403A4C /* FavoriteViewController.swift in Sources */,
 				55033C3225CFBADC00403A4C /* HelperClass.swift in Sources */,
 				55033C1525CF76E900403A4C /* ServiceHelper.swift in Sources */,
@@ -390,6 +397,7 @@
 				55033C1725CF799D00403A4C /* TopViewController.swift in Sources */,
 				55033BD925CF72B800403A4C /* SceneDelegate.swift in Sources */,
 				55033C3D25CFCB0300403A4C /* TopListCoordinator.swift in Sources */,
+				C8BB17FF25DCF8370060E3CB /* Animeography.swift in Sources */,
 				C80CC75C25D21A6100631E2F /* Type.swift in Sources */,
 				C80CC75225D213BC00631E2F /* SearchViewController.swift in Sources */,
 				55033C1025CF730000403A4C /* Top.swift in Sources */,

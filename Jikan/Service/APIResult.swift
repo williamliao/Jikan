@@ -21,6 +21,8 @@ protocol APIClient {
     var session: URLSession { get }
     var cacheAnime: URLCache { get }
     var cacheManga: URLCache { get }
+    var cachePeople: URLCache { get }
+    var cacheCharaters: URLCache { get }
     func fetch<T: Decodable>(with request: URLRequest, decode: @escaping (Decodable) -> T?, completion: @escaping (APIResult<T, Error>) -> Void)
 }
 
@@ -67,7 +69,7 @@ extension APIClient {
                             
                             cacheData = cacheRespone.data
                         }
-                    } else {
+                    } else if request.url!.absoluteString.contains("manga") {
                         if self.cacheManga.cachedResponse(for: request) == nil,
                             let data = try? Data(contentsOf: request.url!) {
                             self.cacheManga.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
@@ -76,6 +78,32 @@ extension APIClient {
                             
                         } else {
                             let cacheRespone: CachedURLResponse = self.cacheManga.cachedResponse(for: request)!
+                            
+                            cacheData = cacheRespone.data
+                        }
+                    } else if request.url!.absoluteString.contains("people") {
+                        
+                        if self.cachePeople.cachedResponse(for: request) == nil,
+                            let data = try? Data(contentsOf: request.url!) {
+                            self.cachePeople.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
+                            
+                            cacheData = data
+                            
+                        } else {
+                            let cacheRespone: CachedURLResponse = self.cachePeople.cachedResponse(for: request)!
+                            
+                            cacheData = cacheRespone.data
+                        }
+                        
+                    } else if request.url!.absoluteString.contains("characters") {
+                        if self.cacheCharaters.cachedResponse(for: request) == nil,
+                            let data = try? Data(contentsOf: request.url!) {
+                            self.cacheCharaters.storeCachedResponse(CachedURLResponse(response: httpResponse, data: data), for: request)
+                            
+                            cacheData = data
+                            
+                        } else {
+                            let cacheRespone: CachedURLResponse = self.cacheCharaters.cachedResponse(for: request)!
                             
                             cacheData = cacheRespone.data
                         }

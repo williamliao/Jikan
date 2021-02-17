@@ -9,8 +9,10 @@
 import UIKit
 
 enum FavoriteSection: Int, CaseIterable {
-  case anime
-  case manga
+    case anime
+    case manga
+    case people
+    case charaters
 }
 
 class FavoriteViewModel: NSObject {
@@ -61,6 +63,16 @@ extension FavoriteViewModel: UITableViewDataSource {
                     
             self?.tableView.reloadData()
         }
+        
+        viewModel.favoritesPeople.bind { [weak self] (_) in
+                    
+            self?.tableView.reloadData()
+        }
+        
+        viewModel.favoritesCharaters.bind { [weak self] (_) in
+                    
+            self?.tableView.reloadData()
+        }
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -68,7 +80,21 @@ extension FavoriteViewModel: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? viewModel.favoritesAnime.value.count : viewModel.favoritesManga.value.count
+        
+        switch section {
+        case 0:
+           return viewModel.favoritesAnime.value.count
+        case 1:
+           return viewModel.favoritesManga.value.count
+        case 2:
+           return viewModel.favoritesPeople.value.count
+        case 3:
+           return viewModel.favoritesCharaters.value.count
+        default:
+            return 0
+        }
+        
+        //return section == 0 ? viewModel.favoritesAnime.value.count : viewModel.favoritesManga.value.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -81,21 +107,27 @@ extension FavoriteViewModel: UITableViewDataSource {
         
       //  let topItem = viewModel.favorites.value.
         
+        var top: Top?
+        
         switch indexPath.section {
             case 0:
-                let top = Array(viewModel.favoritesAnime.value)[indexPath.row]
-                
-                guard let cell = self.configureCell(tableView: tableView, top: top, indexPath: indexPath) else { return UITableViewCell() }
-                return cell
-                
+                top = Array(viewModel.favoritesAnime.value)[indexPath.row]
             case 1:
-                let top = Array(viewModel.favoritesManga.value)[indexPath.row]
-                
-                guard let cell = self.configureCell(tableView: tableView, top: top, indexPath: indexPath) else { return UITableViewCell() }
-                return cell
-        default:
+                top = Array(viewModel.favoritesManga.value)[indexPath.row]
+            case 2:
+                top = Array(viewModel.favoritesPeople.value)[indexPath.row]
+            case 3:
+                top = Array(viewModel.favoritesCharaters.value)[indexPath.row]
+            default:
+                return TopTableViewCell()
+        }
+        
+        guard let realTop = top else {
             return TopTableViewCell()
         }
+        
+        guard let cell = self.configureCell(tableView: tableView, top: realTop, indexPath: indexPath) else { return UITableViewCell() }
+        return cell
         
     }
    
@@ -140,12 +172,17 @@ extension FavoriteViewModel: UITableViewDataSource {
         }
         
         switch sectionTitle {
-         // 2
-         case .anime:
-            return "Anime"
-         // 3
-         case .manga:
-            return "Manga"
+             case .anime:
+                return "Anime"
+
+             case .manga:
+                return "Manga"
+                
+            case .people:
+               return "People"
+                
+            case .charaters:
+               return "Charaters"
          }
     }
 }
@@ -182,13 +219,39 @@ extension FavoriteViewModel: UITableViewDelegate {
                 }
                 
                 completion(true)
-            } else {
+            } else if indexPath.section == FavoriteSection.anime.rawValue {
                 let top = Array(self.viewModel.favoritesManga.value)[indexPath.row]
                 
                 self.viewModel.favoritesManga.value.remove(top)
                 
                 do {
                     try UserDefaults.standard.setObject(self.viewModel.favoritesManga.value, forKey: "favoritesManga")
+                    UserDefaults.standard.synchronize()
+                } catch  {
+                    print(error)
+                }
+            }
+            
+            else if indexPath.section == FavoriteSection.people.rawValue {
+                let top = Array(self.viewModel.favoritesPeople.value)[indexPath.row]
+                
+                self.viewModel.favoritesPeople.value.remove(top)
+                
+                do {
+                    try UserDefaults.standard.setObject(self.viewModel.favoritesPeople.value, forKey: "favoritesPeople")
+                    UserDefaults.standard.synchronize()
+                } catch  {
+                    print(error)
+                }
+            }
+            
+            else if indexPath.section == FavoriteSection.charaters.rawValue {
+                let top = Array(self.viewModel.favoritesCharaters.value)[indexPath.row]
+                
+                self.viewModel.favoritesCharaters.value.remove(top)
+                
+                do {
+                    try UserDefaults.standard.setObject(self.viewModel.favoritesCharaters.value, forKey: "favoritesCharaters")
                     UserDefaults.standard.synchronize()
                 } catch  {
                     print(error)
