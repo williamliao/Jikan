@@ -434,10 +434,12 @@ extension TopViewModel: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
+        //let currentType = SearchItem.ScopeTypeSection.allCases[self.customizeSearchView.typeIndex].rawValue
+        
         let notFavoriteAction = UIContextualAction(style: .normal, title: "unFavorite") { (action, view, completionHandler) in
                 
             let item = self.respone.value
-            
+           
             if self.customizeSearchView.currentType == "anime" {
                 if let top = item?.top[indexPath.row] {
                     self.favoritesAnime.value.remove(top)
@@ -481,12 +483,13 @@ extension TopViewModel: UITableViewDelegate {
                         self.favoritesCharaters.value.insert(top)
                     }
                 }
-  
-            }
+                self.saveToFavorite()
+                completionHandler(false)
+        }
 
             notFavoriteAction.backgroundColor = .red
             favoriteAction.backgroundColor = .gray
-
+        
             return UISwipeActionsConfiguration(actions: [notFavoriteAction, favoriteAction])
        }
     

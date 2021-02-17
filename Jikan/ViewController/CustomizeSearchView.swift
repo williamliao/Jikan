@@ -155,12 +155,19 @@ class CustomizeSearchView: UIView {
                 button.addTarget(self, action: #selector(pressedSubType(button:)), for: .touchUpInside)
                 button.setTitleColor(.blue, for: .selected)
                 button.setTitleColor(.white, for: .normal)
+                
+                if button.tag == 0 {
+                    button.isSelected = true
+                }
+                
                 subTypeButtons.append(button)
                 subTypeHorizontalContentView.addArrangedSubview(button)
             }
             
             subTypeContentView.addArrangedSubview(subTypeHorizontalContentView)
         }
+        
+        
 
        // print(subTypeHorizontalContentView.subviews)
         
@@ -237,7 +244,7 @@ class CustomizeSearchView: UIView {
             subTypeContentView.safelyRemoveArrangedSubviews()
             subTypeHorizontalContentView.safelyRemoveArrangedSubviews()
             stackedGrid(rows: 4, columns: 2, rootView: self, titleArray: titleArray)
-            
+            currentSubType = "airing"
         case 1:
            
             hasSubtype = true
@@ -245,7 +252,7 @@ class CustomizeSearchView: UIView {
             subTypeContentView.safelyRemoveArrangedSubviews()
             subTypeHorizontalContentView.safelyRemoveArrangedSubviews()
             stackedGrid(rows: 4, columns: 2, rootView: self, titleArray: titleArray)
-            
+            currentSubType = "manga"
             
         case 2:
          
@@ -271,6 +278,8 @@ class CustomizeSearchView: UIView {
             topViewModel.fetchDataWithoutType(type: currentType, subType: "")
         } else if (currentType == "characters") {
             topViewModel.fetchDataWithoutType(type: currentType, subType: "")
+        } else {
+            topViewModel.fetchDataByType(type: currentType, subType: currentSubType)
         }
         
         
