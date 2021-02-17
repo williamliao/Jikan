@@ -8,6 +8,7 @@
 
 import XCTest
 import WebKit
+import Combine
 @testable import Jikan
 
 class JikanTests: XCTestCase {
@@ -20,12 +21,22 @@ class JikanTests: XCTestCase {
 
     var fakeData : FakeData!
     
+    var viewModel : TopViewModel!
+    
+    let service = ServiceHelper(withBaseURL: "https://api.jikan.moe/v3")
+    
+    private var cancellable: AnyCancellable?
+    
     override func setUpWithError() throws {
         
         sut = URLSession(configuration: .default)
+        
+        viewModel = TopViewModel()
+        
+        viewModel.fetchTopListAnime()
                 
-        topContentVM = TopContentViewModel(webView: WKWebView(), topViewModel: TopViewModel())
-    
+        topContentVM = TopContentViewModel(webView: WKWebView(), topViewModel: viewModel)
+        
         fakeData = FakeData()
         
         //sut.defaults = mockUserDefaults
@@ -59,7 +70,7 @@ extension JikanTests {
     func testListcount() {
         let exception = XCTestExpectation()
         
-        topViewModel.service.getFeed(fromRoute: Routes.upcoming, parameters: nil) { [weak self] (result) in
+        service.getFeed(fromRoute: Routes.upcoming, parameters: nil) { [weak self] (result) in
             
             switch result {
                 case .success(let feedResult):
@@ -131,7 +142,7 @@ extension JikanTests {
               }
               dataTask.resume()
               // 3
-              wait(for: [promise], timeout: 5)
+            wait(for: [promise], timeout: 10)
             XCTAssertNil(responseError)
             XCTAssertEqual(sc, 200)
     }
@@ -155,5 +166,29 @@ extension JikanTests {
 
         let firstName =  try XCTUnwrap(topViewModel.respone.value?.top[0].title)
         XCTAssertFalse(firstName.isEmpty)
+    }
+    
+    func testCachingImage() {
+        let exception = XCTestExpectation()
+        
+        viewModel.respone.bind { (_) in
+            exception.fulfill()
+        }
+        
+        let wait = XCTWaiter()
+        _ = wait.wait(for: [exception], timeout: 10)
+        
+        guard let url = URL(string: self.topViewModel.respone.value?.top[0].image_url ?? "")  else {
+            return
+        }
+        var imageCache: ImageCache = ImageCache()
+        cancellable = topViewModel.loadImage(for: url).sink { image in
+            imageCache = ImageLoader.shared.imageCache
+            
+            XCTAssertNotNil(imageCache.image(for: url))
+            
+            XCTAssertEqual(imageCache.image(for: url), image)
+        }
+
     }
 }

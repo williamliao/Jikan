@@ -32,6 +32,9 @@
 		55033C3A25CFCAD700403A4C /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55033C3825CFCAD700403A4C /* AppCoordinator.swift */; };
 		55033C3B25CFCAD700403A4C /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55033C3925CFCAD700403A4C /* Coordinator.swift */; };
 		55033C3D25CFCB0300403A4C /* TopListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55033C3C25CFCB0300403A4C /* TopListCoordinator.swift */; };
+		C80CC75225D213BC00631E2F /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80CC75125D213BC00631E2F /* SearchViewController.swift */; };
+		C80CC75725D2156100631E2F /* TopSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80CC75625D2156100631E2F /* TopSearchViewModel.swift */; };
+		C80CC75C25D21A6100631E2F /* Type.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80CC75B25D21A6100631E2F /* Type.swift */; };
 		C83A3EC925D0D15F007DEF56 /* FakeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83A3EC825D0D15F007DEF56 /* FakeData.swift */; };
 		C83A3ED325D0D87E007DEF56 /* top.json in Resources */ = {isa = PBXBuildFile; fileRef = C83A3EC025D0D155007DEF56 /* top.json */; };
 /* End PBXBuildFile section */
@@ -85,6 +88,9 @@
 		55033C3825CFCAD700403A4C /* AppCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		55033C3925CFCAD700403A4C /* Coordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		55033C3C25CFCB0300403A4C /* TopListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopListCoordinator.swift; sourceTree = "<group>"; };
+		C80CC75125D213BC00631E2F /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		C80CC75625D2156100631E2F /* TopSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSearchViewModel.swift; sourceTree = "<group>"; };
+		C80CC75B25D21A6100631E2F /* Type.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Type.swift; sourceTree = "<group>"; };
 		C83A3EC025D0D155007DEF56 /* top.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = top.json; sourceTree = "<group>"; };
 		C83A3EC825D0D15F007DEF56 /* FakeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,6 +184,7 @@
 			children = (
 				55033C0B25CF730000403A4C /* Response.swift */,
 				55033C0C25CF730000403A4C /* Top.swift */,
+				C80CC75B25D21A6100631E2F /* Type.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -188,6 +195,7 @@
 				55033C1825CF79C000403A4C /* TopViewModel.swift */,
 				55033C2F25CFA57500403A4C /* TopContentViewModel.swift */,
 				55033C3525CFC56800403A4C /* FavoriteViewModel.swift */,
+				C80CC75625D2156100631E2F /* TopSearchViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -195,6 +203,7 @@
 		55033C0825CF72E000403A4C /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				C80CC75125D213BC00631E2F /* SearchViewController.swift */,
 				55033C1625CF799D00403A4C /* TopViewController.swift */,
 				55033C1D25CF81EC00403A4C /* TopTableViewCell.swift */,
 				55033C2D25CFA55300403A4C /* TopContentViewController.swift */,
@@ -377,9 +386,12 @@
 				55033C3225CFBADC00403A4C /* HelperClass.swift in Sources */,
 				55033C1525CF76E900403A4C /* ServiceHelper.swift in Sources */,
 				55033C0F25CF730000403A4C /* Response.swift in Sources */,
+				C80CC75725D2156100631E2F /* TopSearchViewModel.swift in Sources */,
 				55033C1725CF799D00403A4C /* TopViewController.swift in Sources */,
 				55033BD925CF72B800403A4C /* SceneDelegate.swift in Sources */,
 				55033C3D25CFCB0300403A4C /* TopListCoordinator.swift in Sources */,
+				C80CC75C25D21A6100631E2F /* Type.swift in Sources */,
+				C80CC75225D213BC00631E2F /* SearchViewController.swift in Sources */,
 				55033C1025CF730000403A4C /* Top.swift in Sources */,
 				55033C3625CFC56800403A4C /* FavoriteViewModel.swift in Sources */,
 				55033C2A25CF9C8A00403A4C /* ImageCache.swift in Sources */,

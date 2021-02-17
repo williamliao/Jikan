@@ -110,7 +110,7 @@ class TopTableViewCell: UITableViewCell {
     
     func configureImage(with url: URL) {
         isLoading(isLoading: true)
-        cancellable = loadImage(for: url).sink { [unowned self] image in
+        cancellable = self.loadImage(for: url).sink { [unowned self] image in
             self.showImage(image: image)
             isLoading(isLoading: false)
         }

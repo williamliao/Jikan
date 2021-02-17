@@ -32,6 +32,10 @@ class TopViewController: UIViewController, Storyboarded {
             self?.topTableView.reloadData()
         }
         
+        viewModel.filterRespone.bind { [weak self] (_) in
+            self?.topTableView.reloadData()
+        }
+        
         viewModel.error.bind { (error) in
             guard let error = error else {
                 return
@@ -41,6 +45,7 @@ class TopViewController: UIViewController, Storyboarded {
         }
         
         viewModel.createSegmentView(view: view)
+        viewModel.createSearchViewController(navItem: self.navigationItem)
         viewModel.fetchTopListAnime()
         viewModel.loadFavorieData()
         

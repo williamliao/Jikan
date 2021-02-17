@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Combine
 
 enum Section: Int, CaseIterable {
   case top
@@ -23,6 +24,10 @@ class TopViewModel: NSObject {
     var error: Observable<Error?> = Observable(nil)
     var favoritesAnime:  Observable<Set<Top>> = Observable(Set<Top>())
     var favoritesManga:  Observable<Set<Top>> = Observable(Set<Top>())
+    
+    var filterRespone: Observable<[Top]> = Observable([])
+    
+    var isSearching: Observable<Bool> = Observable(false)
     
     var isLoading: Observable<Bool> = Observable(false)
     
@@ -245,26 +250,29 @@ extension TopViewModel: UITableViewDataSource {
     }
     
     private func numberOfItems(numberOfRowsInSection section: Int) -> Int {
-        return respone.value?.top.count ?? 0
+        return self.isSearching.value ? filterRespone.value.count : respone.value?.top.count ?? 0
     }
     
     private func configureCell(tableView: UITableView, items: Response, indexPath: IndexPath) -> UITableViewCell? {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: TopTableViewCell.reuseIdentifier, for: indexPath) as? TopTableViewCell
         
-        cell?.titleLabel.text = items.top[indexPath.row].title
-        let rank = items.top[indexPath.row].rank
-        cell?.rankLabel.text = "\(rank)"
-        cell?.typeLabel.text = items.top[indexPath.row].type
+        let top = self.isSearching.value ? filterRespone.value[indexPath.row] : items.top[indexPath.row]
         
-        if let start = items.top[indexPath.row].start_date, let end = items.top[indexPath.row].end_date  {
+        
+        cell?.titleLabel.text = top.title
+        let rank = top.rank
+        cell?.rankLabel.text = "\(rank)"
+        cell?.typeLabel.text = top.type
+        
+        if let start = top.start_date, let end = top.end_date  {
             cell?.startLabel.text = "start \(start)"
             cell?.endLabel.text = "end \(end)"
         }
         
         DispatchQueue.global(qos:.userInteractive).async {
         
-            guard let url = URL(string: items.top[indexPath.row].image_url)  else {
+            guard let url = URL(string: top.image_url)  else {
                 return
             }
             
@@ -275,6 +283,14 @@ extension TopViewModel: UITableViewDataSource {
   
         return cell
         
+    }
+    
+    func loadImage(for url: URL) -> AnyPublisher<UIImage?, Never> {
+        return Just(url)
+        .flatMap({ poster -> AnyPublisher<UIImage?, Never> in
+            return ImageLoader.shared.loadImage(from: url)
+        })
+        .eraseToAnyPublisher()
     }
 }
 
@@ -366,5 +382,21 @@ extension TopViewModel: UITableViewDelegate {
         } catch  {
             print(error)
         }
+    }
+}
+
+extension TopViewModel {
+    func createSearchViewController(navItem: UINavigationItem) {
+        let searchController = SearchViewController(viewModel: self)
+        
+        if #available(iOS 11.0, *) {
+            
+            navItem.searchController = searchController
+            searchController.hidesNavigationBarDuringPresentation = false
+        } else {
+            //candyTableView.tableHeaderView = searchController.searchBar
+        }
+        
+        //candyTableView.sectionHeaderHeight = UITableView.automaticDimension
     }
 }
